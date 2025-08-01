@@ -48,11 +48,10 @@ public class EmployeeDao {
 
 		return employees;
 	}
-	
+
 	// Get Employee By Email
 	public Employee getEmployeeByEmail(String email) throws SQLException {
 		Employee employee = null;
-		
 
 		// Logic of SQL
 		// Step 3: Create SQL Statements
@@ -64,9 +63,9 @@ public class EmployeeDao {
 		ResultSet rs = ps.executeQuery();
 
 		while (rs.next()) {
-			// When we find that employee then only create object of  employee
+			// When we find that employee then only create object of employee
 			employee = new Employee();
-			
+
 			// Load all data into employees object
 			employee.setEmpId(rs.getInt("emp_id"));
 			employee.setFirstName(rs.getString("first_name"));
@@ -75,7 +74,7 @@ public class EmployeeDao {
 			employee.setEmail(rs.getString("email"));
 			employee.setCreatedAt(rs.getTimestamp("created_at"));
 			employee.setUpdatedAt(rs.getTimestamp("updated_at"));
-			
+
 		}
 
 		// Step 5: Close All
@@ -83,7 +82,7 @@ public class EmployeeDao {
 
 		return employee;
 	}
-	
+
 	// Insert Employee
 	public int insertEmployee(Employee employee) throws SQLException {
 		int result = 0;
@@ -91,7 +90,7 @@ public class EmployeeDao {
 		// Step 3: Create SQL Statements
 		String sql = "insert into employee(first_name, last_name, gender, email) values (?,?,?,?)";
 		PreparedStatement ps = connection.prepareStatement(sql);
-		
+
 		// Set Values in ?
 		ps.setString(1, employee.getFirstName());
 		ps.setString(2, employee.getLastName());
@@ -100,7 +99,66 @@ public class EmployeeDao {
 
 		// Step 4: Execute SQL Statements
 		result = ps.executeUpdate();
-		
+
+		// Step 5: Close All
+		closeAll(connection, null, ps);
+
+		return result;
+
+	}
+
+	// Get Employee By Id
+	public Employee getEmployeeById(int id) throws SQLException {
+		Employee employee = null;
+
+		// Logic of SQL
+		// Step 3: Create SQL Statements
+		String sql = "select * from employee where emp_id = ?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setInt(1, id);
+
+		// Step 4: Execute SQL Statements
+		ResultSet rs = ps.executeQuery();
+
+		if (rs.next()) {
+			// When we find that employee then only create object of employee
+			employee = new Employee();
+
+			// Load all data into employees object
+			employee.setEmpId(rs.getInt("emp_id"));
+			employee.setFirstName(rs.getString("first_name"));
+			employee.setLastName(rs.getString("last_name"));
+			employee.setGender(rs.getString("gender"));
+			employee.setEmail(rs.getString("email"));
+			employee.setCreatedAt(rs.getTimestamp("created_at"));
+			employee.setUpdatedAt(rs.getTimestamp("updated_at"));
+
+		}
+
+		// Step 5: Close All
+		closeAll(connection, rs, ps);
+
+		return employee;
+	}
+
+	// Update Employee
+	public int updateEmployee(Employee employee, int id) throws SQLException {
+		int result = 0;
+		// Logic of SQL
+		// Step 3: Create SQL Statements
+		String sql = "update employee set first_name = ?, last_name = ?, gender = ?, email = ? where emp_id = ?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+
+		// Set Values in ?
+		ps.setString(1, employee.getFirstName());
+		ps.setString(2, employee.getLastName());
+		ps.setString(3, employee.getGender());
+		ps.setString(4, employee.getEmail());
+		ps.setInt(5, id);
+
+		// Step 4: Execute SQL Statements
+		result = ps.executeUpdate();
+
 		// Step 5: Close All
 		closeAll(connection, null, ps);
 
@@ -120,5 +178,17 @@ public class EmployeeDao {
 		if (preparedStatement != null) {
 			preparedStatement.close();
 		}
+	}
+
+	public int deleteEmployee(int id) throws SQLException {
+		// Delete Emp By Id
+		String sql = "delete from employee where emp_id = ?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setInt(1, id);
+		int result = 0;
+		result = ps.executeUpdate();
+		closeAll(connection, null, ps);
+
+		return result;
 	}
 }
